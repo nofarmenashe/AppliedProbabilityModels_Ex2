@@ -10,10 +10,10 @@
 #Output9	373633
 #Output10	18976
 #Output11	3
-#Output12	None
-#Output13	None
-#Output14	None
-#Output15	None
+#Output12	8.029269363252175e-06
+#Output13	0.0
+#Output14	7.68024418221503e-06
+#Output15	2.4774981232951703e-07
 #Output16	None
 #Output17	None
 #Output18	None
