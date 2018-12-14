@@ -92,6 +92,9 @@ if __name__ == "__main__":
     outputs[14] = lidstone_unigram_model(0.1, INPUT_WORD, training_set)
     outputs[15] = lidstone_unigram_model(0.1, UNSEEN_WORD, training_set)
 
+    # 4. Held out model training
+    
+
     # Write final output
     output_string = "#Student\tYuval Maymon\tNofar Menashe\t315806299\t 205486210\n"
 
