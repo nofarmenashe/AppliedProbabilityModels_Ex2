@@ -1,3 +1,7 @@
+# Wriiten By:
+# Yuval Maymon - 315806299
+# Nofar Menashe - 205486210
+
 import sys
 
 
