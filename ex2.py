@@ -39,7 +39,7 @@ def MLE(event, dataset_collection, dataset_size):
 def lidstone_unigram_model(lambda_param, event, dataset_collection, dataset_size):
     mle_event = MLE(event, dataset_collection, dataset_size)
     miu = dataset_size / (dataset_size + (lambda_param * VOCABULARY_SIZE))
-    P_lid = miu * mle_event + (1 - miu) * (1 / VOCABULARY_SIZE)
+    P_lid = (miu * mle_event) + ((1 - miu) * (1 / VOCABULARY_SIZE))
     return P_lid
 
 
@@ -50,6 +50,22 @@ def perplexity(lambda_param, test_set, train_set_collection, train_set_size):
         sum_of_logs += math.log(P_lidstone, 2)
 
     return math.pow(2, -(1 / len(test_set)) * sum_of_logs)
+
+
+def get_lambda_with_min_perplexity(test_set, train_set_collection, train_set_size):
+    lambda_array = [i/100. for i in range(1, 200)]
+    min_perplexity = math.inf
+    min_lambda = None
+
+    for lambda_param in lambda_array:
+        print(lambda_param)
+        curr_perplexity = perplexity(lambda_param, test_set, train_set_collection, train_set_size)
+
+        if curr_perplexity < min_perplexity:
+            min_perplexity = curr_perplexity
+            min_lambda = lambda_param
+
+    return min_lambda, min_perplexity
 
 
 def held_out_model(event, S_t_collection, S_h_collection, S_h_size, vocabulary_size):
@@ -122,6 +138,7 @@ if __name__ == "__main__":
     outputs[17] = perplexity(0.1, validation_set, training_set_collection, len(training_set))
     outputs[18] = perplexity(1, validation_set, training_set_collection, len(training_set))
 
+    outputs[19], outputs[20] = get_lambda_with_min_perplexity(validation_set, training_set_collection, len(training_set))
     # 4. Held out model training
     held_out_training_set_size = round(0.5 * len(development_set_words))
 
