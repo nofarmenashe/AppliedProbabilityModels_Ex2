@@ -1,9 +1,8 @@
-# Wriiten By:
+# Writen By:
 # Yuval Maymon - 315806299
 # Nofar Menashe - 205486210
 
 import sys
-
 
 def get_articles_from_file(filename):
     file = open(filename, "r")
@@ -36,6 +35,18 @@ def number_of_times_event_appear(event, dataset):
     return dataset.count(event)
 
 
+def MLE(event, dataset):
+    event_count = number_of_times_event_appear(event, dataset)
+    return event_count / len(dataset)
+
+
+def lidstone_unigram_model(lambda_param, event, dataset):
+    mle_event = MLE(event, dataset)
+    miu = len(dataset) / (len(dataset) + (lambda_param * VOCABULARY_SIZE))
+    P_lid = miu * mle_event + (1 - miu) * (1 / VOCABULARY_SIZE)
+    return P_lid
+
+
 if __name__ == "__main__":
 
     development_set_filename = sys.argv[1]
@@ -43,7 +54,8 @@ if __name__ == "__main__":
     INPUT_WORD = sys.argv[3].lower()
     output_filename = sys.argv[4]
 
-    VOCABULARY_SIZE = 300000
+    VOCABULARY_SIZE = 300000  # number of events
+    UNSEEN_WORD = 'unseen-word'
 
     developmentArticles = get_articles_from_file(development_set_filename)
     development_set_words = get_all_words_in_articles(developmentArticles)
@@ -73,6 +85,12 @@ if __name__ == "__main__":
     outputs[9] = len(training_set)
     outputs[10] = number_of_different_events(training_set)
     outputs[11] = number_of_times_event_appear(INPUT_WORD, training_set)
+
+    outputs[12] = MLE(INPUT_WORD, training_set)
+    outputs[13] = MLE(UNSEEN_WORD, training_set)
+
+    outputs[14] = lidstone_unigram_model(0.1, INPUT_WORD, training_set)
+    outputs[15] = lidstone_unigram_model(0.1, UNSEEN_WORD, training_set)
 
     # Write final output
     output_string = "#Student\tYuval Maymon\tNofar Menashe\t315806299\t 205486210\n"
