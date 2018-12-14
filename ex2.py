@@ -3,6 +3,7 @@
 # Nofar Menashe - 205486210
 
 import sys
+import math
 
 def get_articles_from_file(filename):
     file = open(filename, "r")
@@ -45,6 +46,15 @@ def lidstone_unigram_model(lambda_param, event, dataset):
     miu = len(dataset) / (len(dataset) + (lambda_param * VOCABULARY_SIZE))
     P_lid = miu * mle_event + (1 - miu) * (1 / VOCABULARY_SIZE)
     return P_lid
+
+
+def perplexity(lambda_param, test_set, train_set):
+    sum_of_logs = 0
+    for word in test_set:
+        P_lidstone = lidstone_unigram_model(lambda_param, word, train_set)
+        sum_of_logs += math.log(P_lidstone)
+
+    return math.pow(2, -(1 / len(test_set)) * sum_of_logs)
 
 
 if __name__ == "__main__":
@@ -91,6 +101,11 @@ if __name__ == "__main__":
 
     outputs[14] = lidstone_unigram_model(0.1, INPUT_WORD, training_set)
     outputs[15] = lidstone_unigram_model(0.1, UNSEEN_WORD, training_set)
+
+    outputs[16] = perplexity(0.01, validation_set, training_set)
+    # outputs[17] = perplexity(0.1, validation_set, training_set)
+    # outputs[18] = perplexity(1, validation_set, training_set)
+
 
     # Write final output
     output_string = "#Student\tYuval Maymon\tNofar Menashe\t315806299\t 205486210\n"
