@@ -1,3 +1,7 @@
+# Wriiten By:
+# Yuval Maymon - 315806299
+# Nofar Menashe - 205486210
+
 import sys
 
 
@@ -58,7 +62,6 @@ if __name__ == "__main__":
 
     # 2. Development set preprocessing
     outputs[7] = len(development_set_words)
-
 
     # 3. Lindstone model training
     training_set_size = round(0.9 * len(development_set_words))
