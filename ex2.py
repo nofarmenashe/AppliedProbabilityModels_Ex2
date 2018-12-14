@@ -4,6 +4,7 @@
 
 import sys
 import math
+import collections
 
 def get_articles_from_file(filename):
     file = open(filename, "r")
@@ -26,33 +27,27 @@ def get_all_words_in_articles(articles):
     return words
 
 
-
 def number_of_different_events(dataset):
     distinct_dataset = list(set(dataset))
     return len(distinct_dataset)
 
-
-def number_of_times_event_appear(event, dataset):
-    return dataset.count(event)
-
-
-def MLE(event, dataset):
-    event_count = number_of_times_event_appear(event, dataset)
-    return event_count / len(dataset)
+def MLE(event, dataset_collection, dataset_size):
+    event_count = dataset_collection[event]
+    return event_count / dataset_size
 
 
-def lidstone_unigram_model(lambda_param, event, dataset):
-    mle_event = MLE(event, dataset)
-    miu = len(dataset) / (len(dataset) + (lambda_param * VOCABULARY_SIZE))
+def lidstone_unigram_model(lambda_param, event, dataset_collection, dataset_size):
+    mle_event = MLE(event, dataset_collection, dataset_size)
+    miu = dataset_size / (dataset_size + (lambda_param * VOCABULARY_SIZE))
     P_lid = miu * mle_event + (1 - miu) * (1 / VOCABULARY_SIZE)
     return P_lid
 
 
-def perplexity(lambda_param, test_set, train_set):
+def perplexity(lambda_param, test_set, train_set_collection, train_set_size):
     sum_of_logs = 0
     for word in test_set:
-        P_lidstone = lidstone_unigram_model(lambda_param, word, train_set)
-        sum_of_logs += math.log(P_lidstone)
+        P_lidstone = lidstone_unigram_model(lambda_param, word, train_set_collection, train_set_size)
+        sum_of_logs += math.log(P_lidstone, 2)
 
     return math.pow(2, -(1 / len(test_set)) * sum_of_logs)
 
@@ -91,20 +86,22 @@ if __name__ == "__main__":
     training_set = development_set_words[:training_set_size]
     validation_set = development_set_words[training_set_size:]
 
+    training_set_collection = collections.Counter(training_set)
+
     outputs[8] = len(validation_set)
     outputs[9] = len(training_set)
-    outputs[10] = number_of_different_events(training_set)
-    outputs[11] = number_of_times_event_appear(INPUT_WORD, training_set)
+    outputs[10] = len(training_set_collection)
+    outputs[11] = training_set_collection[INPUT_WORD]
 
-    outputs[12] = MLE(INPUT_WORD, training_set)
-    outputs[13] = MLE(UNSEEN_WORD, training_set)
+    outputs[12] = MLE(INPUT_WORD, training_set_collection, len(training_set))
+    outputs[13] = MLE(UNSEEN_WORD, training_set_collection, len(training_set))
 
-    outputs[14] = lidstone_unigram_model(0.1, INPUT_WORD, training_set)
-    outputs[15] = lidstone_unigram_model(0.1, UNSEEN_WORD, training_set)
+    outputs[14] = lidstone_unigram_model(0.1, INPUT_WORD, training_set_collection, len(training_set))
+    outputs[15] = lidstone_unigram_model(0.1, UNSEEN_WORD, training_set_collection, len(training_set))
 
-    outputs[16] = perplexity(0.01, validation_set, training_set)
-    # outputs[17] = perplexity(0.1, validation_set, training_set)
-    # outputs[18] = perplexity(1, validation_set, training_set)
+    outputs[16] = perplexity(0.01, validation_set, training_set_collection, len(training_set))
+    outputs[17] = perplexity(0.1, validation_set, training_set_collection, len(training_set))
+    outputs[18] = perplexity(1, validation_set, training_set_collection, len(training_set))
 
 
     # Write final output
