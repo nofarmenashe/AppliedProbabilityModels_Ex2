@@ -6,10 +6,10 @@
 #Output5	300000
 #Output6	3.3333333333333333e-06
 #Output7	415148
-#Output8	None
-#Output9	None
-#Output10	None
-#Output11	None
+#Output8	41515
+#Output9	373633
+#Output10	18976
+#Output11	3
 #Output12	None
 #Output13	None
 #Output14	None
