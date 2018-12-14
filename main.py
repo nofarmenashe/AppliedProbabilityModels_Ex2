@@ -1,5 +1,27 @@
 import sys
 
+
+def get_articles_from_file(filename):
+    file = open(filename, "r")
+    lines = file.readlines()
+
+    articles = []
+    for line in lines:
+        if line[:6] != '<TRAIN' and line[:5] != '<TEST':
+            articles.append(line)
+
+    return articles
+
+
+def get_all_words_in_articles(articles):
+    words = []
+    for article in articles:
+        for word in article.split():
+            words.append(word)
+
+    return words
+
+
 if __name__ == "__main__":
 
     development_set_filename = sys.argv[1]
@@ -8,6 +30,9 @@ if __name__ == "__main__":
     output_filename = sys.argv[4]
 
     VOCABULARY_SIZE = 300000
+
+    developmentArticles = get_articles_from_file(development_set_filename)
+    developmentWords = get_all_words_in_articles(developmentArticles)
 
     outputs = [None for _ in range(29)]
 
@@ -22,6 +47,9 @@ if __name__ == "__main__":
     outputs[6] = P_uniform
 
     # 2. Development set preprocessing
+    outputs[7] = len(developmentWords)
+
+    # 3. Lidstone model training
 
     # Write final output
     outputString = "#Student\tYuval Maymon\tNofar Menashe\t315806299\t 205486210\n"
