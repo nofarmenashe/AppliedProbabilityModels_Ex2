@@ -63,7 +63,6 @@ if __name__ == "__main__":
     # 2. Development set preprocessing
     outputs[7] = len(development_set_words)
 
-
     # 3. Lindstone model training
     training_set_size = round(0.9 * len(development_set_words))
 
