@@ -52,6 +52,25 @@ def perplexity(lambda_param, test_set, train_set_collection, train_set_size):
     return math.pow(2, -(1 / len(test_set)) * sum_of_logs)
 
 
+def held_out_model(event, S_t_collection, S_h_collection, S_h_size, vocabulary_size):
+    r = S_t_collection[event]
+    t_r_sum = 0
+    N_r = 0
+
+    for event_S_t in S_t_collection:
+        if S_t_collection[event_S_t] == r:
+            N_r += 1
+            t_r_sum += S_h_collection[event_S_t]
+
+    if N_r == 0:
+        N_r = vocabulary_size - len(S_t_collection)
+        differenceSet = S_h_collection - S_t_collection
+        for word in differenceSet:
+            t_r_sum += S_h_collection[word]
+
+    return (t_r_sum / N_r) / S_h_size
+
+
 if __name__ == "__main__":
 
     development_set_filename = sys.argv[1]
@@ -103,9 +122,21 @@ if __name__ == "__main__":
     outputs[17] = perplexity(0.1, validation_set, training_set_collection, len(training_set))
     outputs[18] = perplexity(1, validation_set, training_set_collection, len(training_set))
 
-
     # 4. Held out model training
-    
+    held_out_training_set_size = round(0.5 * len(development_set_words))
+
+    S_t = development_set_words[:held_out_training_set_size]
+    S_t_collection = collections.Counter(S_t)
+
+    S_h = development_set_words[held_out_training_set_size:]
+    S_h_collection = collections.Counter(S_h)
+
+    outputs[21] = len(S_t)
+    outputs[22] = len(S_h)
+
+    outputs[23] = held_out_model(INPUT_WORD, S_t_collection, S_h_collection, len(S_h), VOCABULARY_SIZE)
+    outputs[24] = held_out_model(UNSEEN_WORD, S_t_collection, S_h_collection, len(S_h), VOCABULARY_SIZE)
+
 
     # Write final output
     output_string = "#Student\tYuval Maymon\tNofar Menashe\t315806299\t 205486210\n"
