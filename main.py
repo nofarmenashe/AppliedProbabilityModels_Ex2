@@ -21,8 +21,10 @@ if __name__ == "__main__":
     P_uniform = 1 / VOCABULARY_SIZE
     outputs[6] = P_uniform
 
+    # 2. Development set preprocessing
+
     # Write final output
-    outputString = "#Student\tYuval Maymon\tNofar Menashe\t315806299\t 038451381\n"
+    outputString = "#Student\tYuval Maymon\tNofar Menashe\t315806299\t 205486210\n"
 
     for index, output in enumerate(outputs[1:]):
         outputString += "#Output" + str(index+1) + "\t" + str(output) + "\n"
