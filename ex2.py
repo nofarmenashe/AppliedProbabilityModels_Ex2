@@ -78,13 +78,13 @@ def held_out_model(event, S_t_collection, S_h_collection, S_h_size, vocabulary_s
             N_r += 1
             t_r_sum += S_h_collection[event_S_t]
 
-    if N_r == 0:
+    if r == 0:
         N_r = vocabulary_size - len(S_t_collection)
-        differenceSet = S_h_collection - S_t_collection
-        for word in differenceSet:
+        difference_set = S_h_collection - S_t_collection
+        for word in difference_set:
             t_r_sum += S_h_collection[word]
 
-    return (t_r_sum / N_r) / S_h_size
+    return (float(t_r_sum) / N_r) / S_h_size
 
 
 if __name__ == "__main__":
