@@ -89,7 +89,7 @@ def held_out_model(event, S_t_collection, S_h_collection, S_h_size, vocabulary_s
 
     if r == 0:
         N_r = vocabulary_size - len(S_t_collection)
-        difference_set = S_h_collection - S_t_collection
+        difference_set = set(S_h_collection) - set(S_t_collection)
         for word in difference_set:
             t_r_sum += S_h_collection[word]
 
@@ -186,9 +186,6 @@ if __name__ == "__main__":
     outputs[21] = len(S_t)
     outputs[22] = len(S_h)
 
-    outputs[21] = len(S_t)
-    outputs[22] = len(S_h)
-
     outputs[23] = held_out_model(INPUT_WORD, S_t_collection, S_h_collection, len(S_h), VOCABULARY_SIZE)
     outputs[24] = held_out_model(UNSEEN_WORD, S_t_collection, S_h_collection, len(S_h), VOCABULARY_SIZE)
 
@@ -201,6 +198,7 @@ if __name__ == "__main__":
 
     lidstone_perplexity = lidstone_perplexity(best_lambda, test_set_words, training_set_collection, len(training_set))
     outputs[26] = lidstone_perplexity
+
     print("start heldout proplexity")
     heldout_perplexity = heldout_perplexity(test_set_words, S_t_collection, S_h_collection, len(S_h), VOCABULARY_SIZE)
     print("end heldout proplexity")
