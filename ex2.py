@@ -29,13 +29,12 @@ def get_all_words_in_articles(articles):
 
 
 # Lidstone Model
-def MLE(event, dataset_collection, dataset_size):
-    event_count = dataset_collection[event]
-    return event_count / dataset_size
+def MLE(event_occurences, dataset_size):
+    return event_occurences / dataset_size
 
 
-def lidstone_unigram_model(lambda_param, event, dataset_collection, dataset_size):
-    mle_event = MLE(event, dataset_collection, dataset_size)
+def lidstone_unigram_model(lambda_param, event_occurences, dataset_size):
+    mle_event = MLE(event_occurences, dataset_size)
     miu = dataset_size / (dataset_size + (lambda_param * VOCABULARY_SIZE))
     P_lid = (miu * mle_event) + ((1 - miu) * (1 / VOCABULARY_SIZE))
     return P_lid
@@ -59,7 +58,7 @@ def get_lambda_with_min_perplexity(test_set, train_set_collection, train_set_siz
 def lidstone_perplexity(lambda_param, test_set, train_set_collection, train_set_size):
     sum_of_logs = 0
     for word in test_set:
-        P_lidstone = lidstone_unigram_model(lambda_param, word, train_set_collection, train_set_size)
+        P_lidstone = lidstone_unigram_model(lambda_param, train_set_collection[word], train_set_size)
         sum_of_logs += math.log(P_lidstone, 2)
 
     return math.pow(2, -(1 / len(test_set)) * sum_of_logs)
@@ -67,18 +66,18 @@ def lidstone_perplexity(lambda_param, test_set, train_set_collection, train_set_
 
 def check_sum_of_lidstone_probabilities(lambda_param, train_set_collection, train_set_size):
     n0 = VOCABULARY_SIZE - len(training_set_collection)
-    sum_of_probabilities = n0 * lidstone_unigram_model(lambda_param, UNSEEN_WORD, train_set_collection,
+    sum_of_probabilities = n0 * lidstone_unigram_model(lambda_param, train_set_collection[UNSEEN_WORD],
                                                        training_set_size)
 
     for word in train_set_collection.keys():
-        sum_of_probabilities += lidstone_unigram_model(lambda_param, word, train_set_collection, train_set_size)
+        sum_of_probabilities += lidstone_unigram_model(lambda_param, train_set_collection[word], train_set_size)
 
     print("on Lidstone Model with lambda", lambda_param,"sum of probabilities is: ", sum_of_probabilities)
 
 
 # Heldout Model
-def held_out_model(event, S_t_collection, S_h_collection, S_h_size, vocabulary_size):
-    r = S_t_collection[event]
+def held_out_model(event_occurences, S_t_collection, S_h_collection, S_h_size, vocabulary_size):
+    r = event_occurences
     t_r_sum = 0
     N_r = 0
 
@@ -99,7 +98,7 @@ def held_out_model(event, S_t_collection, S_h_collection, S_h_size, vocabulary_s
 def heldout_perplexity(test_set, S_t_collection, S_h_collection, S_h_size, vocabulary_size):
     sum_of_logs = 0
     for word in test_set:
-        P_heldout = held_out_model(word, S_t_collection, S_h_collection, S_h_size, vocabulary_size)
+        P_heldout = held_out_model(S_t_collection[word], S_t_collection, S_h_collection, S_h_size, vocabulary_size)
         sum_of_logs += math.log(P_heldout, 2)
 
     return math.pow(2, -(1 / len(test_set)) * sum_of_logs)
@@ -107,10 +106,10 @@ def heldout_perplexity(test_set, S_t_collection, S_h_collection, S_h_size, vocab
 
 def check_sum_of_heldout_probabilities(S_t_collection, S_h_collection, S_h_size, vocabulary_size):
     n0 = VOCABULARY_SIZE - len(S_t_collection)
-    sum_of_probabilities = n0 * held_out_model(UNSEEN_WORD, S_t_collection, S_h_collection, S_h_size, vocabulary_size)
+    sum_of_probabilities = n0 * held_out_model(S_t_collection[UNSEEN_WORD], S_t_collection, S_h_collection, S_h_size, vocabulary_size)
 
     for word in S_t_collection.keys():
-        sum_of_probabilities += held_out_model(word, S_t_collection, S_h_collection, S_h_size, vocabulary_size)
+        sum_of_probabilities += held_out_model(S_t_collection[word], S_t_collection, S_h_collection, S_h_size, vocabulary_size)
 
     print("on Heldout Model sum of probabilities is: ", sum_of_probabilities)
 
@@ -159,11 +158,11 @@ if __name__ == "__main__":
     outputs[10] = len(training_set_collection)
     outputs[11] = training_set_collection[INPUT_WORD]
 
-    outputs[12] = MLE(INPUT_WORD, training_set_collection, len(training_set))
-    outputs[13] = MLE(UNSEEN_WORD, training_set_collection, len(training_set))
+    outputs[12] = MLE(training_set_collection[INPUT_WORD], len(training_set))
+    outputs[13] = MLE(training_set_collection[UNSEEN_WORD], len(training_set))
 
-    outputs[14] = lidstone_unigram_model(0.1, INPUT_WORD, training_set_collection, len(training_set))
-    outputs[15] = lidstone_unigram_model(0.1, UNSEEN_WORD, training_set_collection, len(training_set))
+    outputs[14] = lidstone_unigram_model(0.1, training_set_collection[INPUT_WORD], len(training_set))
+    outputs[15] = lidstone_unigram_model(0.1, training_set_collection[UNSEEN_WORD], len(training_set))
 
     outputs[16] = lidstone_perplexity(0.01, validation_set, training_set_collection, len(training_set))
     outputs[17] = lidstone_perplexity(0.1, validation_set, training_set_collection, len(training_set))
@@ -186,32 +185,52 @@ if __name__ == "__main__":
     outputs[21] = len(S_t)
     outputs[22] = len(S_h)
 
-    outputs[23] = held_out_model(INPUT_WORD, S_t_collection, S_h_collection, len(S_h), VOCABULARY_SIZE)
-    outputs[24] = held_out_model(UNSEEN_WORD, S_t_collection, S_h_collection, len(S_h), VOCABULARY_SIZE)
+    outputs[23] = held_out_model(S_t_collection[INPUT_WORD], S_t_collection, S_h_collection, len(S_h), VOCABULARY_SIZE)
+    outputs[24] = held_out_model(S_t_collection[UNSEEN_WORD], S_t_collection, S_h_collection, len(S_h), VOCABULARY_SIZE)
 
-    # 5. debug models
+    # # 5. debug models
     check_sum_of_lidstone_probabilities(0.1, training_set_collection, len(training_set))
     check_sum_of_heldout_probabilities(S_t_collection, S_h_collection, len(S_h), VOCABULARY_SIZE)
 
-    # 6.
+    # # 6.
     outputs[25] = len(test_set_words)
 
     lidstone_perplexity = lidstone_perplexity(best_lambda, test_set_words, training_set_collection, len(training_set))
     outputs[26] = lidstone_perplexity
 
-    print("start heldout proplexity")
+    print("start heldout perplexity")
     heldout_perplexity = heldout_perplexity(test_set_words, S_t_collection, S_h_collection, len(S_h), VOCABULARY_SIZE)
-    print("end heldout proplexity")
+    print("end heldout perplexity")
 
     outputs[27] = heldout_perplexity
 
-    outputs[28] = 'L' if lidstone_perplexity > heldout_perplexity else 'H'
+    outputs[28] = 'L' if lidstone_perplexity < heldout_perplexity else 'H'
+
+    output29 = ["#Output29"]
+    for r in range(10):
+        f_lidstone = lidstone_unigram_model(best_lambda, r, len(training_set)) * len(training_set)
+
+        f_heldout = held_out_model(r, S_t_collection, S_h_collection, len(S_h), VOCABULARY_SIZE) * len(S_h)
+
+        N_r = VOCABULARY_SIZE - len(S_t_collection)
+        if r > 0:
+            N_r = 0
+            for event_S_t in S_t_collection:
+                if S_t_collection[event_S_t] == r:
+                    N_r += 1
+
+        t_r = int(round(N_r * f_heldout))
+
+        row = [r, f_lidstone, f_heldout, N_r, t_r]
+        output29.append("\t".join(map(str, [value if index in [0, 3, 4] else round(value, 5) for index, value in enumerate(row)])))
 
     # Write final output
-    output_string = "#Student\tYuval Maymon\tNofar Menashe\t315806299\t 205486210\n"
+    output_string = "#Student\tYuval Maymon\tNofar Menashe\t315806299\t205486210\n"
 
     for index, output in enumerate(outputs[1:]):
         output_string += "#Output" + str(index + 1) + "\t" + str(output) + "\n"
+
+    output_string += "\n".join(output29)
 
     with open(output_filename, 'w') as outputFile:
         outputFile.write(output_string)
